@@ -8,13 +8,101 @@
   'use strict';
 
   // ==========================================
-  // SHA-256 Cryptographic Hash Helper
+  // Pure JavaScript SHA-256 Fallback
+  // ==========================================
+  function sha256Pure(ascii) {
+    function rightRotate(value, amount) {
+      return (value >>> amount) | (value << (32 - amount));
+    }
+    var mathPow = Math.pow;
+    var maxWord = mathPow(2, 32);
+    var lengthProperty = 'length';
+    var i, j;
+    var result = '';
+    var words = [];
+    var asciiBitLength = ascii[lengthProperty] * 8;
+    var hash = [];
+    var k = [];
+    var primeCounter = 0;
+    var isComposite = {};
+    for (var candidate = 2; primeCounter < 64; candidate++) {
+      if (!isComposite[candidate]) {
+        for (i = 0; i < 313; i += candidate) {
+          isComposite[i] = candidate;
+        }
+        hash[primeCounter] = (mathPow(candidate, 0.5) * maxWord) | 0;
+        k[primeCounter++] = (mathPow(candidate, 1 / 3) * maxWord) | 0;
+      }
+    }
+    ascii += '\x80';
+    while (ascii[lengthProperty] % 64 - 56) ascii += '\x00';
+    for (i = 0; i < ascii[lengthProperty]; i++) {
+      j = ascii.charCodeAt(i);
+      words[i >> 2] |= j << ((3 - i) % 4) * 8;
+    }
+    words[words[lengthProperty]] = (asciiBitLength / maxWord) | 0;
+    words[words[lengthProperty]] = asciiBitLength;
+    for (j = 0; j < words[lengthProperty]; ) {
+      var w = words.slice(j, (j += 16));
+      var oldHash = hash;
+      hash = hash.slice(0, 8);
+      for (i = 0; i < 64; i++) {
+        var w15 = w[i - 15], w2 = w[i - 2];
+        var s0 = rightRotate(w15, 7) ^ rightRotate(w15, 18) ^ (w15 >>> 3);
+        var s1 = rightRotate(w2, 17) ^ rightRotate(w2, 19) ^ (w2 >>> 10);
+        var ch = (hash[4] & hash[5]) ^ (~hash[4] & hash[6]);
+        var maj = (hash[0] & hash[1]) ^ (hash[0] & hash[2]) ^ (hash[1] & hash[2]);
+        var temp1 = hash[7] + (rightRotate(hash[4], 6) ^ rightRotate(hash[4], 11) ^ rightRotate(hash[4], 25)) + ch + k[i] + (w[i] = (i < 16) ? w[i] : (w[i - 16] + s0 + w[i - 7] + s1) | 0);
+        var temp2 = (rightRotate(hash[0], 2) ^ rightRotate(hash[0], 13) ^ rightRotate(hash[0], 22)) + maj;
+        hash = [(temp1 + temp2) | 0].concat(hash);
+        hash[4] = (hash[4] + temp1) | 0;
+      }
+      for (i = 0; i < 8; i++) {
+        hash[i] = (hash[i] + oldHash[i]) | 0;
+      }
+    }
+    for (i = 0; i < 8; i++) {
+      for (var i2 = 3; i2 >= 0; i2--) {
+        var b = (hash[i] >> (i2 * 8)) & 255;
+        result += ((b < 16) ? '0' : '') + b.toString(16);
+      }
+    }
+    return result;
+  }
+
+  // ==========================================
+  // SHA-256 Unified Cryptographic Hash Helper
   // ==========================================
   async function sha256(message) {
-    const msgBuffer = new TextEncoder().encode(message);
-    const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-    const hashArray = Array.from(new Uint8Array(hashBuffer));
-    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    if (window.crypto && window.crypto.subtle && typeof window.crypto.subtle.digest === 'function') {
+      try {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      } catch (e) {
+        return sha256Pure(message);
+      }
+    }
+    return sha256Pure(message);
+  }
+
+  // ==========================================
+  // Global Toast Notification
+  // ==========================================
+  function showToast(message) {
+    let toast = document.getElementById('globalToast');
+    if (!toast) {
+      toast = document.createElement('div');
+      toast.id = 'globalToast';
+      toast.className = 'toast-notice';
+      document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, 3500);
   }
 
   // ==========================================
@@ -89,6 +177,7 @@
       if (drawer) drawer.classList.add('open');
       if (backdrop) backdrop.classList.add('open');
       document.body.style.overflow = 'hidden';
+      updateMobileDrawerAuth();
     }
 
     function closeDrawer() {
@@ -100,6 +189,47 @@
     if (hamburger) hamburger.addEventListener('click', openDrawer);
     if (closeBtn) closeBtn.addEventListener('click', closeDrawer);
     if (backdrop) backdrop.addEventListener('click', closeDrawer);
+  }
+
+  function updateMobileDrawerAuth() {
+    const drawer = document.getElementById('mobileNavDrawer');
+    if (!drawer) return;
+    let authBox = document.getElementById('mobileDrawerAuth');
+    if (!authBox) {
+      authBox = document.createElement('div');
+      authBox.id = 'mobileDrawerAuth';
+      authBox.style.padding = '16px 20px';
+      authBox.style.borderTop = '2px solid var(--color-border)';
+      authBox.style.background = 'var(--color-bg-secondary)';
+      drawer.appendChild(authBox);
+    }
+
+    const raw = localStorage.getItem('meridian_current_user');
+    if (raw) {
+      try {
+        const u = JSON.parse(raw);
+        authBox.innerHTML = `
+          <div style="font-weight:700;font-size:0.875rem;margin-bottom:8px;">Signed in as ${escapeHtml(u.name)}</div>
+          <button id="mobileLogoutBtn" style="width:100%;padding:8px;background:none;border:1px solid var(--color-border-dark);font-weight:700;cursor:pointer;border-radius:2px;">Sign Out</button>
+        `;
+        const mBtn = document.getElementById('mobileLogoutBtn');
+        if (mBtn) {
+          mBtn.onclick = () => {
+            localStorage.removeItem('meridian_current_user');
+            updateHeaderAuthState();
+            updateMobileDrawerAuth();
+            showToast('You have signed out successfully.');
+          };
+        }
+      } catch(e) {}
+    } else {
+      authBox.innerHTML = `
+        <div style="display:flex;gap:8px;">
+          <button class="btn-auth btn-auth-signin" style="flex:1;" onclick="window.triggerAuthModal('signin')">Sign In</button>
+          <button class="btn-auth btn-auth-register" style="flex:1;" onclick="window.triggerAuthModal('register')">Register</button>
+        </div>
+      `;
+    }
   }
 
   // ==========================================
@@ -189,7 +319,6 @@
       });
     });
 
-    // Default to first region
     if (regions.length > 0) {
       renderRegionHeadlines(regions[0]);
     }
@@ -248,7 +377,6 @@
           return;
         }
 
-        // Aggregate searchable pool
         const pool = [];
         if (MeridianData.leadStory) pool.push(MeridianData.leadStory);
         if (MeridianData.secondaryLeadStories) pool.push(...MeridianData.secondaryLeadStories);
@@ -329,6 +457,10 @@
     const regMeterFill = document.getElementById('regMeterFill');
     const regMeterText = document.getElementById('regMeterText');
 
+    window.triggerAuthModal = function(defaultTab = 'signin') {
+      openModal(defaultTab);
+    };
+
     function openModal(defaultTab = 'signin') {
       if (!authModal) return;
       authModal.classList.add('open');
@@ -376,11 +508,13 @@
     function showAlert(msg, isSuccess = false) {
       if (!authAlert) return;
       authAlert.textContent = msg;
+      authAlert.style.display = 'block';
       authAlert.className = 'auth-alert ' + (isSuccess ? 'success' : 'error');
     }
 
     function hideAlert() {
       if (!authAlert) return;
+      authAlert.textContent = '';
       authAlert.style.display = 'none';
       authAlert.className = 'auth-alert';
     }
@@ -404,6 +538,34 @@
     if (tabRegister) tabRegister.addEventListener('click', showRegisterTab);
     if (forgotLink) forgotLink.addEventListener('click', showForgotForm);
     if (backToSignInLink) backToSignInLink.addEventListener('click', showSignInTab);
+
+    // Add Demo Quick Login Helper inside formSignIn if not present
+    if (formSignIn && !document.getElementById('demoLoginQuickBox')) {
+      const demoDiv = document.createElement('div');
+      demoDiv.id = 'demoLoginQuickBox';
+      demoDiv.style.marginTop = '14px';
+      demoDiv.style.padding = '10px';
+      demoDiv.style.background = 'var(--color-bg-secondary)';
+      demoDiv.style.border = '1px dashed var(--color-border)';
+      demoDiv.style.borderRadius = '4px';
+      demoDiv.style.textAlign = 'center';
+      demoDiv.innerHTML = `
+        <div style="font-size:0.75rem;color:var(--color-text-secondary);margin-bottom:6px;">College Demo Helper:</div>
+        <button type="button" id="btnQuickDemoLogin" style="background:var(--color-primary);color:#fff;border:none;padding:6px 14px;border-radius:2px;font-size:0.8125rem;font-weight:700;cursor:pointer;">
+          ⚡ 1-Click Sign In as Krish Parikh
+        </button>
+      `;
+      formSignIn.appendChild(demoDiv);
+
+      const quickBtn = document.getElementById('btnQuickDemoLogin');
+      if (quickBtn) {
+        quickBtn.addEventListener('click', () => {
+          document.getElementById('signInEmail').value = 'krish@meridian.com';
+          document.getElementById('signInPassword').value = 'Password123';
+          formSignIn.dispatchEvent(new Event('submit'));
+        });
+      }
+    }
 
     // Password strength meter
     if (regPasswordInput && regMeterFill && regMeterText) {
@@ -432,9 +594,24 @@
       });
     }
 
-    // Load registered users from localStorage
+    // Load registered users from localStorage + Seed demo user
     function getUsers() {
-      return JSON.parse(localStorage.getItem('meridian_users') || '[]');
+      let users = [];
+      try {
+        users = JSON.parse(localStorage.getItem('meridian_users') || '[]');
+      } catch (err) {
+        users = [];
+      }
+      if (!users.some(u => u.email === 'krish@meridian.com')) {
+        users.push({
+          name: 'Krish Parikh',
+          email: 'krish@meridian.com',
+          passwordHash: sha256Pure('Password123'),
+          joined: new Date().toISOString()
+        });
+        localStorage.setItem('meridian_users', JSON.stringify(users));
+      }
+      return users;
     }
 
     function saveUsers(users) {
@@ -445,51 +622,56 @@
     if (formRegister) {
       formRegister.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const name = document.getElementById('regName').value.trim();
-        const email = document.getElementById('regEmail').value.trim().toLowerCase();
-        const password = document.getElementById('regPassword').value;
-        const confirmPassword = document.getElementById('regConfirmPassword').value;
+        try {
+          const name = document.getElementById('regName').value.trim();
+          const email = document.getElementById('regEmail').value.trim().toLowerCase();
+          const password = document.getElementById('regPassword').value;
+          const confirmPassword = document.getElementById('regConfirmPassword').value;
 
-        if (!name || !email || !password) {
-          showAlert('Please complete all required fields.');
-          return;
+          if (!name || !email || !password) {
+            showAlert('Please complete all required fields.');
+            return;
+          }
+
+          if (password.length < 6) {
+            showAlert('Password must be at least 6 characters long.');
+            return;
+          }
+
+          if (password !== confirmPassword) {
+            showAlert('Passwords do not match. Please re-enter.');
+            return;
+          }
+
+          const users = getUsers();
+          if (users.some(u => u.email === email)) {
+            showAlert('An account with this email address already exists. Please Sign In.');
+            return;
+          }
+
+          const passwordHash = await sha256(password);
+          const newUser = {
+            name,
+            email,
+            passwordHash,
+            joined: new Date().toISOString()
+          };
+
+          users.push(newUser);
+          saveUsers(users);
+
+          // Auto-login
+          localStorage.setItem('meridian_current_user', JSON.stringify({ name: newUser.name, email: newUser.email }));
+          showAlert('Account created successfully! Logging you in...', true);
+
+          setTimeout(() => {
+            closeModal();
+            updateHeaderAuthState();
+            showToast('✅ Account created! Welcome, ' + newUser.name);
+          }, 800);
+        } catch (err) {
+          showAlert('Error creating account: ' + err.message);
         }
-
-        if (password.length < 6) {
-          showAlert('Password must be at least 6 characters long.');
-          return;
-        }
-
-        if (password !== confirmPassword) {
-          showAlert('Passwords do not match. Please re-enter.');
-          return;
-        }
-
-        const users = getUsers();
-        if (users.some(u => u.email === email)) {
-          showAlert('An account with this email address already exists.');
-          return;
-        }
-
-        const passwordHash = await sha256(password);
-        const newUser = {
-          name,
-          email,
-          passwordHash,
-          joined: new Date().toISOString()
-        };
-
-        users.push(newUser);
-        saveUsers(users);
-
-        // Auto-login
-        localStorage.setItem('meridian_current_user', JSON.stringify({ name: newUser.name, email: newUser.email }));
-        showAlert('Account created successfully! Logging you in...', true);
-
-        setTimeout(() => {
-          closeModal();
-          updateHeaderAuthState();
-        }, 1000);
       });
     }
 
@@ -497,34 +679,39 @@
     if (formSignIn) {
       formSignIn.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('signInEmail').value.trim().toLowerCase();
-        const password = document.getElementById('signInPassword').value;
+        try {
+          const email = document.getElementById('signInEmail').value.trim().toLowerCase();
+          const password = document.getElementById('signInPassword').value;
 
-        if (!email || !password) {
-          showAlert('Please enter both your email and password.');
-          return;
+          if (!email || !password) {
+            showAlert('Please enter both your email and password.');
+            return;
+          }
+
+          const users = getUsers();
+          const user = users.find(u => u.email === email);
+          if (!user) {
+            showAlert('No account found with this email. Click "Create Account" above to register.');
+            return;
+          }
+
+          const hash = await sha256(password);
+          if (hash !== user.passwordHash) {
+            showAlert('Incorrect password. Please try again or click "Forgot password?".');
+            return;
+          }
+
+          localStorage.setItem('meridian_current_user', JSON.stringify({ name: user.name, email: user.email }));
+          showAlert(`Welcome back, ${user.name}!`, true);
+
+          setTimeout(() => {
+            closeModal();
+            updateHeaderAuthState();
+            showToast('✅ Welcome back, ' + user.name + '!');
+          }, 600);
+        } catch (err) {
+          showAlert('Sign In error: ' + err.message);
         }
-
-        const users = getUsers();
-        const user = users.find(u => u.email === email);
-        if (!user) {
-          showAlert('Invalid email or password.');
-          return;
-        }
-
-        const hash = await sha256(password);
-        if (hash !== user.passwordHash) {
-          showAlert('Invalid email or password.');
-          return;
-        }
-
-        localStorage.setItem('meridian_current_user', JSON.stringify({ name: user.name, email: user.email }));
-        showAlert(`Welcome back, ${user.name}!`, true);
-
-        setTimeout(() => {
-          closeModal();
-          updateHeaderAuthState();
-        }, 800);
       });
     }
 
@@ -532,33 +719,37 @@
     if (formForgot) {
       formForgot.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
-        const newPassword = document.getElementById('forgotNewPassword').value;
+        try {
+          const email = document.getElementById('forgotEmail').value.trim().toLowerCase();
+          const newPassword = document.getElementById('forgotNewPassword').value;
 
-        if (!email || !newPassword) {
-          showAlert('Please enter both email and new password.');
-          return;
+          if (!email || !newPassword) {
+            showAlert('Please enter both email and new password.');
+            return;
+          }
+
+          if (newPassword.length < 6) {
+            showAlert('New password must be at least 6 characters.');
+            return;
+          }
+
+          const users = getUsers();
+          const userIdx = users.findIndex(u => u.email === email);
+          if (userIdx === -1) {
+            showAlert('No account found with this email address.');
+            return;
+          }
+
+          users[userIdx].passwordHash = await sha256(newPassword);
+          saveUsers(users);
+
+          showAlert('Password successfully reset! You can now sign in.', true);
+          setTimeout(() => {
+            showSignInTab();
+          }, 1400);
+        } catch (err) {
+          showAlert('Reset error: ' + err.message);
         }
-
-        if (newPassword.length < 6) {
-          showAlert('New password must be at least 6 characters.');
-          return;
-        }
-
-        const users = getUsers();
-        const userIdx = users.findIndex(u => u.email === email);
-        if (userIdx === -1) {
-          showAlert('No account found with this email.');
-          return;
-        }
-
-        users[userIdx].passwordHash = await sha256(newPassword);
-        saveUsers(users);
-
-        showAlert('Password successfully reset! You can now sign in.', true);
-        setTimeout(() => {
-          showSignInTab();
-        }, 1500);
       });
     }
 
@@ -579,14 +770,16 @@
       try {
         const user = JSON.parse(raw);
         authButtons.style.display = 'none';
-        userMenu.style.display = 'block';
+        userMenu.style.display = 'inline-block';
         if (userNameSpan) userNameSpan.textContent = user.name;
         if (userAvatarCircle) {
           const initials = user.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase();
-          userAvatarCircle.textContent = initials;
+          userAvatarCircle.textContent = initials || 'U';
         }
       } catch (err) {
         localStorage.removeItem('meridian_current_user');
+        authButtons.style.display = 'flex';
+        userMenu.style.display = 'none';
       }
     } else {
       authButtons.style.display = 'flex';
@@ -609,9 +802,12 @@
     }
 
     if (logoutBtn) {
-      logoutBtn.onclick = () => {
+      logoutBtn.onclick = (e) => {
+        e.preventDefault();
         localStorage.removeItem('meridian_current_user');
         updateHeaderAuthState();
+        updateMobileDrawerAuth();
+        showToast('You have signed out successfully.');
       };
     }
   }
@@ -690,7 +886,6 @@
 
   // ==========================================
   // Open-Meteo Live Weather Integration
-  // Major global hubs + Search lookup
   // ==========================================
   const MAJOR_CITIES = [
     { city: "New Delhi", country: "India", lat: 28.6139, lon: 77.2090 },
@@ -725,7 +920,6 @@
         code: data.current.weather_code
       };
     } catch (err) {
-      // Fallback
       return { temp: 24, humidity: 55, wind: 12, code: 1 };
     }
   }
@@ -758,7 +952,6 @@
 
     grid.innerHTML = weatherCardsHtml.join('');
 
-    // Weather Search Form
     const searchForm = document.getElementById('weatherSearchForm');
     const searchInput = document.getElementById('weatherCityInput');
     const searchResultBox = document.getElementById('weatherSearchResults');
@@ -803,14 +996,12 @@
     }
   }
 
-  // Header quick weather widget
   async function initHeaderWeather() {
     const tempEl = document.getElementById('headerWeatherTemp');
     const cityEl = document.getElementById('headerWeatherCity');
     if (!tempEl || !cityEl) return;
 
     try {
-      // Default to London or New Delhi
       const data = await fetchCityWeather(28.6139, 77.2090);
       const info = getWeatherDesc(data.code);
       tempEl.textContent = `${data.temp}°C ${info.icon}`;
@@ -962,7 +1153,6 @@
       article = findArticleById(articleId);
     }
 
-    // Default to lead story if not found
     if (!article) {
       article = MeridianData.leadStory;
     }
@@ -1010,7 +1200,6 @@
       }
     }
 
-    // Story Timeline / Earlier Coverage
     if (timelineBox && timelineList) {
       const timelineItems = article.timeline || [
         { date: "August 2025", title: "Preliminary Accord Drafted", text: "Working groups convened in Geneva to harmonize regulatory frameworks." },
@@ -1027,7 +1216,6 @@
       `).join('');
     }
 
-    // Related articles
     if (relatedGrid) {
       const candidates = MeridianData.secondaryLeadStories || [];
       relatedGrid.innerHTML = candidates.slice(0, 3).map(item => `

@@ -1903,8 +1903,9 @@ button, input, select, textarea {
   box-shadow: var(--shadow-lg);
   width: 100%;
   max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
   position: relative;
-  overflow: hidden;
   border: 1px solid var(--color-border);
   animation: modalFadeIn 0.25s ease-out;
 }
@@ -2503,5 +2504,56 @@ button, input, select, textarea {
   }
   .weather-cards-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* Global Toast Notification */
+.toast-notice {
+  position: fixed;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-20px);
+  background: #141414;
+  color: #ffffff;
+  padding: 12px 24px;
+  border-radius: 4px;
+  font-weight: 700;
+  font-size: 0.9375rem;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+  z-index: 9999;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border: 1px solid rgba(255,255,255,0.2);
+}
+.toast-notice.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+@media (max-width: 768px) {
+  .header-top .container {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+  .edition-info {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+  }
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .modal-dialog {
+    max-height: 85vh;
+    margin: 10px;
   }
 }
