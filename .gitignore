@@ -1,0 +1,14 @@
+# System & OS Files
+.DS_Store
+Thumbs.db
+
+# Editor & IDE directories
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Build artifacts and temp scripts
+node_modules/
+build-pages.js
+*.log
