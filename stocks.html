@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stocks & Financial Markets - The Meridian Post</title>
+  <link rel="stylesheet" href="./style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  
+  <!-- Sticky Header Bar -->
+  <header class="site-header">
+    <div class="header-top">
+      <div class="container">
+        <div class="edition-info">
+          <span class="edition-date">Friday, 6 November 2026</span>
+          <span class="edition-pill">Global Edition</span>
+        </div>
+        <div class="header-actions">
+          <button class="theme-toggle-btn" id="themeToggleBtn" aria-label="Toggle Dark Mode">
+            <svg id="themeToggleIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+            </svg>
+            <span id="themeToggleLabel">Dark Mode</span>
+          </button>
+          <button class="search-toggle-btn" aria-label="Open search">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <span>Search (Ctrl+K)</span>
+          </button>
+          <div class="auth-buttons" id="headerAuthButtons">
+            <button class="btn-auth btn-auth-signin trigger-auth-btn" data-tab="signin">Sign In</button>
+            <button class="btn-auth btn-auth-register trigger-auth-btn" data-tab="register">Register</button>
+          </div>
+          <!-- User Profile Session Menu -->
+          <div class="user-menu" id="headerUserMenu" style="display:none;">
+            <button class="user-badge-btn" id="userBadgeBtn">
+              <span class="user-avatar-circle" id="headerUserAvatar">U</span>
+              <span id="headerUserName">Subscriber</span>
+              <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+            </button>
+            <div class="user-dropdown" id="userDropdown">
+              <a href="#profile"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Member Account</a>
+              <a href="#saved"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Reading List</a>
+              <hr>
+              <button id="btnLogout"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg> Sign Out</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Branding & Weather -->
+    <div class="header-main">
+      <div class="container">
+        <a href="./index.html" class="brand-block">
+          <div class="brand-badge">M</div>
+          <div class="brand-text-wrap">
+            <span class="brand-name">The Meridian Post</span>
+            <span class="brand-tagline">Independent Global Journalism · Established 1894</span>
+          </div>
+        </a>
+        <div class="header-weather-widget" id="headerWeatherWidget">
+          <div>
+            <div class="weather-brief-temp" id="headerWeatherTemp">26°C ☀️</div>
+            <div id="headerWeatherCity">New Delhi</div>
+          </div>
+          <a href="./weather.html" style="font-size:0.75rem;text-decoration:underline;">World Weather</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Primary Navigation Bar -->
+    <nav class="main-nav" aria-label="Main Navigation">
+      <div class="container">
+        <button class="nav-hamburger-btn" id="hamburgerBtn" aria-label="Open Navigation Menu">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
+        <ul class="nav-links">
+          <li><a href="./index.html" class="">Home</a></li>
+          <li><a href="./news.html" class="">News</a></li>
+          <li><a href="./sport.html" class="">Sport</a></li>
+          <li><a href="./business.html" class="">Business</a></li>
+          <li><a href="./health.html" class="">Health</a></li>
+          <li><a href="./culture.html" class="">Culture</a></li>
+          <li><a href="./arts.html" class="">Arts & Literature</a></li>
+          <li><a href="./travel.html" class="">Travel</a></li>
+          <li><a href="./audio.html" class="">Audio</a></li>
+          <li><a href="./video.html" class="">Video</a></li>
+          <li><a href="./live.html" class="">Live <span class="nav-live-pill">LIVE</span></a></li>
+          <li><a href="./weather.html" class="">Weather</a></li>
+          <li><a href="./stocks.html" class="active">Stocks</a></li>
+        </ul>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="mobile-nav-drawer" id="mobileNavDrawer">
+    <div class="mobile-drawer-header">
+      <div class="brand-block" style="gap:8px;">
+        <div class="brand-badge" style="width:28px;height:28px;font-size:1.1rem;">M</div>
+        <span class="brand-name" style="font-size:1.1rem;">The Meridian</span>
+      </div>
+      <button class="mobile-drawer-close" id="drawerCloseBtn" aria-label="Close menu">&times;</button>
+    </div>
+    <ul class="mobile-nav-links">
+      <li><a href="./index.html" class="">Home</a></li>
+      <li><a href="./news.html" class="">News</a></li>
+      <li><a href="./sport.html" class="">Sport</a></li>
+      <li><a href="./business.html" class="">Business</a></li>
+      <li><a href="./health.html" class="">Health</a></li>
+      <li><a href="./culture.html" class="">Culture</a></li>
+      <li><a href="./arts.html" class="">Arts & Literature</a></li>
+      <li><a href="./travel.html" class="">Travel</a></li>
+      <li><a href="./audio.html" class="">Audio</a></li>
+      <li><a href="./video.html" class="">Video</a></li>
+      <li><a href="./live.html" class="">Live <span class="nav-live-pill">LIVE</span></a></li>
+      <li><a href="./weather.html" class="">Weather</a></li>
+      <li><a href="./stocks.html" class="active">Stocks</a></li>
+    </ul>
+  </div>
+  <div class="drawer-backdrop" id="drawerBackdrop"></div>
+
+  <!-- Breaking News Ticker -->
+  <div class="ticker-bar">
+    <div class="container">
+      <div class="ticker-badge">Breaking</div>
+      <div class="ticker-content">
+        <span class="ticker-headline-item" id="tickerItem">Loading current editorial bulletins...</span>
+      </div>
+      <div class="ticker-controls">
+        <button class="ticker-control-btn" id="tickerPrev">&#9664;</button>
+        <button class="ticker-control-btn" id="tickerNext">&#9654;</button>
+      </div>
+    </div>
+  </div>
+
+
+  <main class="container">
+    <section class="section-page-hero">
+      <div class="section-title-bar">
+        <h1 class="section-heading" style="font-size:2.2rem;">Global Markets & Financial Intelligence</h1>
+      </div>
+      <p style="font-size:1.1rem;color:var(--color-text-secondary);max-width:760px;margin-top:8px;">
+        Comprehensive pricing, indices benchmarks, currency quotes, and institutional commentary across Asian, European, and American capital markets.
+      </p>
+    </section>
+
+    <!-- Market Overview Panel -->
+    <section class="section-block" style="padding-top:16px;">
+      <div class="market-panel">
+        
+        <!-- Live Ticker Cards -->
+        <div class="market-ticker-row">
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>BSE SENSEX</span><span class="mt-symbol">India</span></div>
+            <div class="mt-value">84,312.40</div>
+            <div class="mt-change up">&#9650; +482.15 (+0.58%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>NSE NIFTY 50</span><span class="mt-symbol">India</span></div>
+            <div class="mt-value">25,720.90</div>
+            <div class="mt-change up">&#9650; +148.60 (+0.58%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>S&P 500</span><span class="mt-symbol">US</span></div>
+            <div class="mt-value">5,892.40</div>
+            <div class="mt-change up">&#9650; +34.10 (+0.58%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>NASDAQ</span><span class="mt-symbol">US Tech</span></div>
+            <div class="mt-value">19,245.80</div>
+            <div class="mt-change up">&#9650; +182.20 (+0.96%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>DOW JONES</span><span class="mt-symbol">US</span></div>
+            <div class="mt-value">43,890.12</div>
+            <div class="mt-change up">&#9650; +210.40 (+0.48%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>GOLD (XAU/USD)</span><span class="mt-symbol">Commodities</span></div>
+            <div class="mt-value">$2,748.20</div>
+            <div class="mt-change down">&#9660; -8.40 (-0.31%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>BRENT CRUDE</span><span class="mt-symbol">Oil / bbl</span></div>
+            <div class="mt-value">$74.15</div>
+            <div class="mt-change down">&#9660; -0.85 (-1.13%)</div>
+          </div>
+          <div class="market-ticker-card">
+            <div class="mt-header"><span>USD / INR</span><span class="mt-symbol">Forex</span></div>
+            <div class="mt-value">83.92</div>
+            <div class="mt-change up">&#9650; -0.08 (-0.10%)</div>
+          </div>
+        </div>
+
+        <!-- Interactive Benchmark Chart -->
+        <div class="market-chart-box" style="margin-bottom:28px;">
+          <div class="chart-header">
+            <span class="chart-title">Global Benchmark Performance (Sensex Level)</span>
+            <div class="chart-timeframes">
+              <button class="timeframe-btn active" data-timeframe="1D">1D</button>
+              <button class="timeframe-btn" data-timeframe="1W">1W</button>
+              <button class="timeframe-btn" data-timeframe="1M">1M</button>
+              <button class="timeframe-btn" data-timeframe="1Y">1Y</button>
+            </div>
+          </div>
+          <div style="height: 280px; position: relative;">
+            <canvas id="marketChartCanvas"></canvas>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- Detailed Market Tables & Trading Feed -->
+    <div class="section-layout-grid">
+      
+      <div>
+        <h3 class="section-heading" style="font-size:1.4rem;margin-bottom:18px;">Top Institutional Gainers & Movement</h3>
+        
+        <table style="width:100%;border-collapse:collapse;font-size:0.875rem;margin-bottom:28px;">
+          <thead>
+            <tr style="border-bottom:2px solid var(--color-ink);text-align:left;">
+              <th style="padding:10px 8px;">Company / Asset</th>
+              <th style="padding:10px 8px;">Sector</th>
+              <th style="padding:10px 8px;text-align:right;">Last Price</th>
+              <th style="padding:10px 8px;text-align:right;">Change</th>
+              <th style="padding:10px 8px;text-align:right;">Volume</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom:1px solid var(--color-divider);">
+              <td style="padding:10px 8px;font-weight:700;">Tata Electronics Ltd</td>
+              <td style="padding:10px 8px;color:var(--color-text-secondary);">Semiconductors</td>
+              <td style="padding:10px 8px;text-align:right;">₹1,842.50</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-up);font-weight:700;">+4.82%</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-text-muted);">4.8M</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-divider);">
+              <td style="padding:10px 8px;font-weight:700;">Infosys Ltd</td>
+              <td style="padding:10px 8px;color:var(--color-text-secondary);">Enterprise IT</td>
+              <td style="padding:10px 8px;text-align:right;">₹1,985.10</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-up);font-weight:700;">+2.15%</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-text-muted);">3.2M</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-divider);">
+              <td style="padding:10px 8px;font-weight:700;">HDFC Bank</td>
+              <td style="padding:10px 8px;color:var(--color-text-secondary);">Banking & Credit</td>
+              <td style="padding:10px 8px;text-align:right;">₹1,740.00</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-up);font-weight:700;">+1.40%</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-text-muted);">6.1M</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-divider);">
+              <td style="padding:10px 8px;font-weight:700;">Reliance Industries</td>
+              <td style="padding:10px 8px;color:var(--color-text-secondary);">Energy & Retail</td>
+              <td style="padding:10px 8px;text-align:right;">₹2,995.80</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-up);font-weight:700;">+0.75%</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-text-muted);">2.9M</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--color-divider);">
+              <td style="padding:10px 8px;font-weight:700;">Oil & Natural Gas Corp</td>
+              <td style="padding:10px 8px;color:var(--color-text-secondary);">Upstream Energy</td>
+              <td style="padding:10px 8px;text-align:right;">₹284.10</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-down);font-weight:700;">-1.20%</td>
+              <td style="padding:10px 8px;text-align:right;color:var(--color-text-muted);">1.9M</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <!-- Market analysis stories -->
+        <h3 class="section-heading" style="font-size:1.4rem;margin-bottom:18px;">Analysis & Strategy</h3>
+        <div style="display:flex;flex-direction:column;gap:18px;">
+          <article class="market-article-item">
+            <h4 class="mai-title"><a href="./article.html?id=mkt-1">Tech Valuations Rebound as Sovereign AI Spending Reaches $120B Annually</a></h4>
+            <p class="mai-summary">Enterprise spending shifts toward on-premise neural hardware and high-throughput data orchestration fabrics.</p>
+            <div class="mai-meta">By Catherine Vance · 6 Nov 2026</div>
+          </article>
+          <article class="market-article-item">
+            <h4 class="mai-title"><a href="./article.html?id=mkt-2">Commodities Roundup: Copper Surges to 18-Month High on Grid Upgrades</a></h4>
+            <p class="mai-summary">Smelter bottlenecks in South America and accelerating HVDC transmission cable projects constrain physical stocks.</p>
+            <div class="mai-meta">By Rajesh Kothari · 6 Nov 2026</div>
+          </article>
+        </div>
+
+      </div>
+
+      <!-- Trading updates feed -->
+      <aside class="section-sidebar">
+        <div class="sidebar-widget">
+          <h3 class="sidebar-widget-title">Trading Updates Feed</h3>
+          <div style="display:flex;flex-direction:column;gap:14px;font-size:0.8125rem;">
+            <div style="border-left:2px solid var(--color-up);padding-left:10px;">
+              <span style="font-weight:700;color:var(--color-up);">10:15 AM IST</span>
+              <div>Sensex advances past 84,340 resistance level on strong IT earnings guidance.</div>
+            </div>
+            <div style="border-left:2px solid var(--color-up);padding-left:10px;">
+              <span style="font-weight:700;color:var(--color-up);">09:45 AM IST</span>
+              <div>Foreign Institutional Investors (FIIs) net buyers of ₹1,420 crore in cash segment.</div>
+            </div>
+            <div style="border-left:2px solid var(--color-down);padding-left:10px;">
+              <span style="font-weight:700;color:var(--color-down);">09:20 AM IST</span>
+              <div>Brent crude eases to $74.15/bbl on higher North Sea seasonal storage injections.</div>
+            </div>
+            <div style="border-left:2px solid var(--color-up);padding-left:10px;">
+              <span style="font-weight:700;color:var(--color-up);">08:50 AM IST</span>
+              <div>RBI interbank liquidity remains in comfortable surplus of ₹1.2 lakh crore.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-widget">
+          <h3 class="sidebar-widget-title">Forex & Central Bank Calendar</h3>
+          <div style="font-size:0.8125rem;color:var(--color-text-secondary);line-height:1.5;">
+            <div><strong>Nov 12:</strong> US Consumer Price Index release</div>
+            <div><strong>Nov 18:</strong> Bank of England Monetary Policy summary</div>
+            <div><strong>Dec 06:</strong> Reserve Bank of India Bi-monthly policy rate decision</div>
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+
+  
+  <!-- Strict BBC News-Style Footer with Original Branding -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="container">
+      <hr class="footer-top-line">
+      
+      <!-- 1. Site logo block on the left -->
+      <div class="footer-brand-row">
+        <a href="./index.html" class="footer-brand-block">
+          <div class="footer-brand-badge">M</div>
+          <span class="footer-brand-name">The Meridian Post</span>
+        </a>
+      </div>
+
+      <!-- 2. Bold section links -->
+      <nav class="footer-sections-row" aria-label="Footer Navigation">
+        <a href="./index.html" class="footer-section-link">Home</a>
+        <a href="./news.html" class="footer-section-link">News</a>
+        <a href="./sport.html" class="footer-section-link">Sport</a>
+        <a href="./business.html" class="footer-section-link">Business</a>
+        <a href="./news.html" class="footer-section-link">Technology</a>
+        <a href="./health.html" class="footer-section-link">Health</a>
+        <a href="./culture.html" class="footer-section-link">Culture</a>
+        <a href="./arts.html" class="footer-section-link">Arts</a>
+        <a href="./travel.html" class="footer-section-link">Travel</a>
+        <a href="./news.html" class="footer-section-link">Earth</a>
+        <a href="./audio.html" class="footer-section-link">Audio</a>
+        <a href="./video.html" class="footer-section-link">Video</a>
+        <a href="./live.html" class="footer-section-link">Live</a>
+        <a href="./weather.html" class="footer-section-link">Weather</a>
+      </nav>
+
+      <!-- 3. Grey dropdown button: "Read in other languages" -->
+      <div class="footer-lang-row">
+        <button class="footer-lang-btn" id="footerLangBtn" aria-expanded="false">
+          <span>Read in other languages</span>
+          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M7 10l5 5 5-5z"/></svg>
+        </button>
+        <div class="footer-lang-menu" id="footerLangMenu">
+          <div class="footer-lang-item">English (International)</div>
+          <div class="footer-lang-item">हिन्दी (Hindi)</div>
+          <div class="footer-lang-item">ગુજરાતી (Gujarati)</div>
+          <div class="footer-lang-item">Español (Spanish)</div>
+          <div class="footer-lang-item">Français (French)</div>
+          <div class="footer-lang-item">العربية (Arabic)</div>
+          <div class="footer-lang-item">中文 (Mandarin)</div>
+          <div class="footer-lang-item">Deutsch (German)</div>
+        </div>
+      </div>
+
+      <hr class="footer-divider-thin">
+
+      <!-- 4. Follow us on row with circular black icons + visible handle & number -->
+      <div class="footer-social-row">
+        <div class="footer-social-left">
+          <span class="footer-follow-label">Follow us on:</span>
+          <div class="footer-social-icons">
+            <a href="https://wa.me/919313775724" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.301-.15-1.782-.879-2.058-.98-.276-.1-.477-.15-.678.15-.2.301-.778.98-.954 1.18-.176.2-.352.226-.653.075-.301-.15-1.272-.469-2.423-1.496-.896-.799-1.5-1.786-1.677-2.087-.176-.301-.019-.464.132-.614.136-.135.301-.352.452-.528.151-.176.2-.301.301-.502.1-.2.05-.376-.025-.527-.075-.15-.678-1.634-.929-2.238-.244-.589-.493-.509-.678-.518-.176-.009-.376-.011-.577-.011-.201 0-.527.075-.803.376-.276.301-1.054 1.03-1.054 2.512s1.079 2.913 1.23 3.114c.15.201 2.124 3.243 5.145 4.549.718.311 1.279.497 1.716.636.721.229 1.377.197 1.895.12.577-.087 1.782-.728 2.033-1.431.251-.703.251-1.305.176-1.431-.075-.126-.276-.201-.577-.351zM12.042 21.942h-.008a9.92 9.92 0 0 1-5.06-1.391l-.363-.215-3.763.987 1.005-3.669-.236-.376A9.914 9.914 0 0 1 2.107 12.04C2.109 6.559 6.568 2.1 12.049 2.1c2.656 0 5.153 1.035 7.028 2.912a9.882 9.882 0 0 1 2.915 7.033c-.002 5.485-4.462 9.897-9.95 9.897z"/></svg>
+            </a>
+            <a href="https://instagram.com/krishparikh25" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="Instagram">
+              <svg viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+            </a>
+            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="X Twitter">
+              <svg viewBox="0 0 24 24"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            </a>
+            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="Facebook">
+              <svg viewBox="0 0 24 24"><path d="M9 8H6v4h3v12h5V12h3.642L18 8h-4V6.333C14 5.374 14.5 5 15.6 5H18V0h-3.808C10.596 0 9 1.583 9 4.615V8z"/></svg>
+            </a>
+            <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="YouTube">
+              <svg viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+            <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" class="social-circle-icon" aria-label="LinkedIn">
+              <svg viewBox="0 0 24 24"><path d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z"/></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Required Visible Text for Instagram Handle & WhatsApp Number -->
+        <div class="footer-handles-text">
+          <a href="https://instagram.com/krishparikh25" target="_blank" rel="noopener noreferrer" class="footer-handle-link">
+            <span>Instagram:</span> <strong>@krishparikh25</strong>
+          </a>
+          <span>·</span>
+          <a href="https://wa.me/919313775724" target="_blank" rel="noopener noreferrer" class="footer-handle-link">
+            <span>WhatsApp:</span> <strong>+91 93137 75724</strong>
+          </a>
+        </div>
+      </div>
+
+      <!-- 5. Small links row -->
+      <div class="footer-legal-links-row">
+        <a href="#terms">Terms of Use</a>
+        <a href="#about">About Us</a>
+        <a href="#privacy">Privacy Policy</a>
+        <a href="#cookies">Cookies</a>
+        <a href="#accessibility">Accessibility Help</a>
+        <a href="#contact">Contact Us</a>
+        <a href="#advertise">Advertise with us</a>
+        <a href="#faqs">Help & FAQs</a>
+      </div>
+
+      <!-- 6. Copyright line -->
+      <div class="footer-copyright-line">
+        Copyright 2026 The Meridian Post. All rights reserved. The Meridian Post is not responsible for the content of external sites.
+      </div>
+
+    </div>
+  </footer>
+
+  <button class="back-to-top-btn" id="backToTopBtn" aria-label="Back to top">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+  </button>
+
+  <!-- Instant Search Modal -->
+  <div class="modal-backdrop" id="searchModal">
+    <div class="modal-dialog search-modal-dialog">
+      <button class="modal-close-btn" id="searchCloseBtn" aria-label="Close search">&times;</button>
+      <div class="search-input-header">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" class="search-big-input" id="searchBigInput" placeholder="Search stories, topics, authors..." autocomplete="off">
+      </div>
+      <div class="search-results-list" id="searchResultsList"></div>
+    </div>
+  </div>
+
+  <!-- Video Playback Modal -->
+  <div class="modal-backdrop" id="videoModal">
+    <div class="modal-dialog video-modal-dialog">
+      <button class="modal-close-btn" id="videoCloseBtn" style="color:#fff;" aria-label="Close video">&times;</button>
+      <div class="video-player-container">
+        <iframe id="videoIframe" src="" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </div>
+  </div>
+
+  <!-- Authentication Modal (Sign In, Register, Forgot Password) -->
+  <div class="modal-backdrop" id="authModal">
+    <div class="modal-dialog">
+      <button class="modal-close-btn" id="authCloseBtn" aria-label="Close auth dialog">&times;</button>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="authTabSignIn">Sign In</button>
+        <button class="auth-tab-btn" id="authTabRegister">Create Account</button>
+      </div>
+
+      <div class="auth-body">
+        <div class="auth-alert" id="authAlert"></div>
+
+        <form id="signInForm">
+          <div class="auth-form-group">
+            <label class="auth-label" for="signInEmail">Email Address</label>
+            <input type="email" class="auth-input" id="signInEmail" placeholder="name@example.com" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label" for="signInPassword">Password</label>
+            <input type="password" class="auth-input" id="signInPassword" placeholder="••••••••" required>
+          </div>
+          <div class="auth-options-row">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;">
+              <input type="checkbox" id="rememberMe"> Remember me
+            </label>
+            <span class="forgot-pw-link" id="forgotPasswordLink">Forgot password?</span>
+          </div>
+          <button type="submit" class="auth-submit-btn">Sign In to The Meridian</button>
+        </form>
+
+        <form id="registerForm" style="display:none;">
+          <div class="auth-form-group">
+            <label class="auth-label" for="regName">Full Name</label>
+            <input type="text" class="auth-input" id="regName" placeholder="Elena Rostova" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label" for="regEmail">Email Address</label>
+            <input type="email" class="auth-input" id="regEmail" placeholder="name@example.com" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label" for="regPassword">Create Password</label>
+            <input type="password" class="auth-input" id="regPassword" placeholder="Minimum 6 characters" required>
+            <div class="password-meter-wrap">
+              <div class="meter-bar"><div class="meter-fill" id="regMeterFill"></div></div>
+              <div class="meter-text" id="regMeterText">Password strength</div>
+            </div>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label" for="regConfirmPassword">Confirm Password</label>
+            <input type="password" class="auth-input" id="regConfirmPassword" placeholder="Re-enter password" required>
+          </div>
+          <button type="submit" class="auth-submit-btn">Create Free Account</button>
+        </form>
+
+        <form id="forgotPasswordForm" style="display:none;">
+          <h4 style="font-family:var(--font-serif);font-size:1.1rem;margin-bottom:8px;">Reset Your Password</h4>
+          <p style="font-size:0.8125rem;color:var(--color-text-secondary);margin-bottom:14px;">Enter your registered account email and set a new password.</p>
+          <div class="auth-form-group">
+            <label class="auth-label" for="forgotEmail">Registered Email</label>
+            <input type="email" class="auth-input" id="forgotEmail" placeholder="name@example.com" required>
+          </div>
+          <div class="auth-form-group">
+            <label class="auth-label" for="forgotNewPassword">New Password</label>
+            <input type="password" class="auth-input" id="forgotNewPassword" placeholder="Minimum 6 characters" required>
+          </div>
+          <button type="submit" class="auth-submit-btn">Reset Password</button>
+          <div style="text-align:center;margin-top:12px;">
+            <span class="forgot-pw-link" id="backToSignInLink">Back to Sign In</span>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="./data.js"></script>
+  <script src="./script.js"></script>
+</body>
+</html>
+
